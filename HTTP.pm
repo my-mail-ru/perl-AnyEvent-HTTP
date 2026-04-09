@@ -1226,8 +1226,9 @@ sub http_request($$@) {
             ? "proxy-authorization: " . (delete $hdr{"proxy-authorization"}) . "\015\012"
             : "";
 
+         my $proxy_http_version = $arg{proxy_http_version} // "1.0";
          # maybe re-use $uauthority with patched port?
-         $state{handle}->push_write ("CONNECT $uhost:$uport HTTP/1.0\015\012$auth\015\012");
+         $state{handle}->push_write ("CONNECT $uhost:$uport HTTP/${proxy_http_version}\015\012$auth\015\012");
          $state{handle}->push_read (line => $qr_nlnl, sub {
             $_[1] =~ /^HTTP\/([0-9\.]+) \s+ ([0-9]{3}) (?: \s+ ([^\015\012]*) )?/ix
                or return _error %state, $cb, { @pseudo, Status => 599, Reason => "Invalid proxy connect response ($_[1])" };
